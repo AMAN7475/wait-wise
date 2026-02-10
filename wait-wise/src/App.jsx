@@ -7,6 +7,23 @@ import WaitingScreen from "./components/WaitingScreen.jsx";
 function App() {
   const [screen, setScreen] = useState("user");
 
+  const SERVICE_TIME = 2 * 60 * 1000; // 2 minutes
+  const [serviceStartTime, setServiceStartTime] = useState(Date.now());
+
+  const [queue, setQueue] = useState(
+    JSON.parse(localStorage.getItem("queueData")) || []
+  );
+
+  const [tokenCounter, setTokenCounter] = useState(
+    parseInt(localStorage.getItem("tokenCounter")) || 1
+  );
+
+  useEffect(() => {
+    localStorage.setItem("queueData", JSON.stringify(queue));
+    localStorage.setItem("tokenCounter", tokenCounter);
+  }, [queue, tokenCounter]);
+
+
   return (
     <div className="App">
       <h1>WAIT-WISE</h1>
