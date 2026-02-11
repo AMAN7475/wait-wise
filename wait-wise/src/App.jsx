@@ -23,6 +23,38 @@ function App() {
     localStorage.setItem("tokenCounter", tokenCounter);
   }, [queue, tokenCounter]);
 
+  useEffect(() => {
+
+    // If no patients are in queue, no timer is needed
+    if (queue.length === 0) return;
+
+    // Timer runs every 1 second
+    const interval = setInterval(() => {
+      const now = Date.now(); // current time
+
+      // Check if service time is over
+      if (now - serviceStartTime >= SERVICE_TIME) {
+
+        // Remove the current patient from queue
+        setQueue(prevQueue => {
+
+          // If only one or no patient is left, clear queue
+          if (prevQueue.length <= 1) return [];
+
+          // Otherwise remove the first patient only
+          return prevQueue.slice(1);
+        });
+
+        // Start service time for next patient
+        setServiceStartTime(Date.now());
+      }
+
+    }, 1000);
+
+    // Cleanup: stop old timer before starting a new one
+    return () => clearInterval(interval);
+
+  }, [queue.length, serviceStartTime]);
 
   return (
     <div className="App">
@@ -34,6 +66,21 @@ function App() {
         <button onClick={() => setScreen("admin")}>Admin Screen</button>
         <button onClick={() => setScreen("waiting")}>Waiting Screen</button>
       </div>
+
+      <hr />
+
+      {/* Show Patient screen */}
+      {screen === "user" && (
+        <UserScreen
+          queue={queue}
+          setQueue={setQueue}
+          tokenCounter={tokenCounter}
+          setTokenCounter={setTokenCounter}
+        />
+      )}
+
     </div>
-  )   
+  );   
 }
+
+export default App;
