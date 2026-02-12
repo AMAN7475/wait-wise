@@ -74,6 +74,7 @@ function App() {
           setTokenCounter={setTokenCounter}
           setServiceStartTime={setServiceStartTime}
         />
+        
       )}      
 
     </div>
