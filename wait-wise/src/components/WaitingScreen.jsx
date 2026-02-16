@@ -70,5 +70,54 @@ function WaitingScreen({ queue, serviceStartTime, goToAdmin }) {
     return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   };
 
+  return (
+    <div className="waiting-container">
+      <h2 className="sub-heading">WAITING LIST</h2>
+
+      <ul>
+        {queue.map((item, index) => {
+          const isCurrentlyServing = index === 0;
+          const isYourToken = item.token === yourToken;
+
+          let style = {
+            padding: "10px",
+            marginBottom: "6px",
+            borderRadius: "6px",
+          };
+
+          if (isCurrentlyServing) {
+            style.background = "#16a34a";
+            style.color = "white";
+            style.fontWeight = "bold";
+          } else if (isYourToken) {
+            style.background = "#2563eb";
+            style.color = "white";
+            style.fontWeight = "bold";
+          } else {
+            style.background = "#f0f0f0";
+            style.color = "black";
+          }
+
+          return (
+            <li key={item.token} style={style}>
+              Token {item.token}
+              {isCurrentlyServing && " (Currently Served)"}
+              {isYourToken && !isCurrentlyServing && " (You)"}
+            </li>
+          );
+        })}
+      </ul>
+
+      <p className="eta">
+        You Are Next In :
+        <span className="time-value">
+          {remainingTime !== null
+            ? formatTime(remainingTime)
+            : "No waiting"}
+        </span>
+      </p>
+    </div>
+  );
+
 }  
 export default WaitingScreen;
