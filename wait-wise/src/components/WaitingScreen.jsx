@@ -1,5 +1,6 @@
 import React from 'react'
 import { useEffect, useState } from "react";
+import "./Waiting.css";
 
 function WaitingScreen({ queue, serviceStartTime, goToAdmin }) {
   const [yourToken, setYourToken] = useState(null);

@@ -1,0 +1,174 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+    min-height: 100vh;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.waiting-container {
+    max-width: 500px;
+    width: 100%;
+    background: #f8fafc;
+    padding: 35px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    margin-left: 145px;
+}
+
+.token-value {
+    color: #ef4444;   /* red */
+    font-size: 24px;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+
+h2 {
+    color: white !important;
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.sub-heading{
+    color: #1e40af !important;
+}
+
+.token-info {
+    color: #1e3a8a;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 15px;
+    background: #dbeafe;
+    border-radius: 8px;
+    border: 2px solid #3b82f6;
+}
+
+#yourToken {
+    color: #3b82f6;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 25px 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+ul li {
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    color: #334155;
+    font-size: 15px;
+    text-align: center;
+}
+
+ul li:hover {
+    background: #f1f5f9;
+}
+
+.eta {
+    color: #1e3a8a;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 25px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    border: 2px solid #cbd5e1;
+}
+
+.time-value{
+    color: #ef4444;
+    font-size: 20px;
+    padding-left: 10px;
+}
+
+#estimatedTime {
+    color: #3b82f6;
+    font-size: 22px;
+    font-weight: bold;
+    display: block;
+    margin-top: 8px;
+}
+
+
+#adminRedirectBtn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    background: white;
+    color: #3b82f6;
+    border: 2px solid white;
+}
+
+#adminRedirectBtn:hover {
+    background: #f1f5f9;
+}
+
+/* Scrollbar Styling */
+ul::-webkit-scrollbar {
+    width: 8px;
+}
+
+ul::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+ul::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+ul::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .waiting-container {
+        padding: 25px;
+    }
+
+    h2 {
+        font-size: 24px;
+    }
+
+    .token-info {
+        font-size: 16px;
+    }
+
+    #yourToken {
+        font-size: 20px;
+    }
+
+    #estimatedTime {
+        font-size: 18px;
+    }
+}

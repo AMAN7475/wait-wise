@@ -73,9 +73,15 @@ function App() {
           setQueue={setQueue}
           setTokenCounter={setTokenCounter}
           setServiceStartTime={setServiceStartTime}
+        />    
+      )} 
+
+      {screen === "waiting" && (
+        <WaitingScreen
+          queue={queue}
+          serviceStartTime={serviceStartTime}
         />
-        
-      )}      
+      )}
 
     </div>
   );   
