@@ -33,6 +33,42 @@ function WaitingScreen({ queue, serviceStartTime, goToAdmin }) {
     setTokensAhead(queue.slice(0, userIndex));
   }, [queue]);
 
-}
 
+  useEffect(() => {
+    if (!yourToken || queue.length === 0) {
+      setRemainingTime(null);
+      return;
+    }
+
+    const userIndex = queue.findIndex(
+      item => item.token === yourToken
+    );
+
+    if (userIndex <= 0) {
+      setRemainingTime(null);
+      return;
+    }
+
+    let remaining = userIndex * SERVICE_TIME;
+    setRemainingTime(remaining);
+
+    const interval = setInterval(() => {
+      remaining -= 1000;
+      setRemainingTime(remaining > 0 ? remaining : 0);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [queue, yourToken]);
+
+  const formatTime = (ms) => {
+    if (ms === null) return "--:--";
+
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
+    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  };
+
+}  
 export default WaitingScreen;
