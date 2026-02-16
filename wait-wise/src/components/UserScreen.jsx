@@ -35,6 +35,15 @@ function UserScreen({ queue, setQueue, tokenCounter, setTokenCounter }) {
         setContact("");
     };  
 
+const isFormValid =
+    name.trim().length > 0 &&
+    contact.length === 10 &&
+    contactError === "";
+    const isNameValid = name.trim().length > 0;
+    const isContactValid = contact.length === 10 && contactError === "";
+
+
+
     return (
         <div className="screen">
             <h3>Reserve your Appointment</h3>
@@ -42,7 +51,7 @@ function UserScreen({ queue, setQueue, tokenCounter, setTokenCounter }) {
             {!showThankYou && (
                 <form onSubmit={generateToken}>
                     {/* Name input */}
-                    <label>Full Name</label>
+                    <label>Patient's Name</label>
                     <input
                         value={name}
                         onChange={(e) => {
@@ -66,6 +75,11 @@ function UserScreen({ queue, setQueue, tokenCounter, setTokenCounter }) {
                         }}
                         maxLength={30}
                         required
+                        style={{
+                            backgroundColor: isNameValid ? "#dcfce7" : "white",
+                            transition: "background-color 0.3s ease"
+                        }}
+                        
                     />
 
             
@@ -102,7 +116,11 @@ function UserScreen({ queue, setQueue, tokenCounter, setTokenCounter }) {
                                 setContactError("");
                             }
                         }}
-                        required    
+                        required  
+                        style={{
+                            backgroundColor: isContactValid ? "#dcfce7" : "white",
+                            transition: "background-color 0.3s ease"
+                        }}  
                     />
 
                     {contactError && (
@@ -113,7 +131,12 @@ function UserScreen({ queue, setQueue, tokenCounter, setTokenCounter }) {
                 
                     <button
                         type="submit"
-                        disabled={nameError !== "" || contactError !== ""}
+                        disabled={!isFormValid}
+                        style={{
+                            backgroundColor: isFormValid ? "#2563eb" : "#9ca3af",
+                            cursor: isFormValid ? "pointer" : "not-allowed",
+                            opacity: isFormValid ? 1 : 0.7,
+                        }}
                     >
                         Generate Token
                     </button>
