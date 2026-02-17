@@ -35,41 +35,48 @@ function WaitingScreen({ queue, serviceStartTime, goToAdmin }) {
   }, [queue]);
 
 
-  useEffect(() => {
+    useEffect(() => {
     if (!yourToken || queue.length === 0) {
-      setRemainingTime(null);
-      return;
+        setRemainingTime(null);
+        return;
     }
 
     const userIndex = queue.findIndex(
-      item => item.token === yourToken
+        item => item.token === yourToken
     );
 
     if (userIndex <= 0) {
-      setRemainingTime(null);
-      return;
+        setRemainingTime(null);
+        return;
     }
 
-    let remaining = userIndex * SERVICE_TIME;
-    setRemainingTime(remaining);
+    const updateRemainingTime = () => {
+        const now = Date.now();
+        const expectedServeTime =
+        serviceStartTime + userIndex * SERVICE_TIME;
 
-    const interval = setInterval(() => {
-      remaining -= 1000;
-      setRemainingTime(remaining > 0 ? remaining : 0);
-    }, 1000);
+        const remaining = expectedServeTime - now;
+        setRemainingTime(remaining > 0 ? remaining : 0);
+    };
+
+    updateRemainingTime(); // initial call
+
+    const interval = setInterval(updateRemainingTime, 1000);
 
     return () => clearInterval(interval);
-  }, [queue, yourToken]);
+    }, [queue, yourToken, serviceStartTime]);
 
-  const formatTime = (ms) => {
-    if (ms === null) return "--:--";
+    const formatTime = (ms) => {
+        if (ms === null) return "--:--";
 
-    const totalSeconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
+        const totalSeconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
 
-    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-  };
+        return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    };
+
+
 
   return (
     <div className="waiting-container">

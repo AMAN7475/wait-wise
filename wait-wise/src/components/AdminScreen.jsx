@@ -18,6 +18,10 @@ function AdminScreen({ queue, setQueue, setTokenCounter, setServiceStartTime }) 
     localStorage.removeItem("currentUserToken");
   };
 
+  const increaseWaitTime = () => {
+    setServiceStartTime(prevTime => prevTime + 2 * 60 * 1000);
+  };
+
   return (
     <div className="screen">
 
@@ -25,13 +29,16 @@ function AdminScreen({ queue, setQueue, setTokenCounter, setServiceStartTime }) 
 
       <button
         style={{ marginLeft: 75 }}
-        onClick={serveNext}
-      >
+        onClick={serveNext}>
         Serve Next
       </button>
 
       <button onClick={resetQueue}>
         Reset Queue
+      </button>
+
+      <button onClick={increaseWaitTime}>
+        +2 Min Delay
       </button>
 
       <table>
