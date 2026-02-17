@@ -11,14 +11,15 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+    background: linear-gradient(#14226a, #3f45b8, #14226a);
     min-height: 100vh;
     padding: 20px;
 }
 
 h1 {
+  font-style: Verdana;
     text-align: center;
-    color: white;
+    color: rgb(255, 255, 255);
     font-size: 48px;
     margin-bottom: 10px;
     letter-spacing: 2px;
@@ -27,7 +28,7 @@ h1 {
 h2 {
     text-align: center;
     color: white !important;
-    font-size: 16px;
+    font-size: 12px;
     font-weight: normal;
     margin-bottom: 35px;
 }
@@ -44,7 +45,7 @@ h2 {
     margin-top: 30px !important;
     margin: 0 20px;
     border: 2px solid white;
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(2, 43, 138, 0.795);
     color: white;
     font-size: 16px;
     font-weight: 600;
@@ -65,7 +66,7 @@ hr {
 .screen {
     max-width: 500px;
     margin: 0 auto;
-    background: #f8fafc;
+    background: #d6e4f2;
     padding: 35px;
     border-radius: 12px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.3);
@@ -76,7 +77,7 @@ hr {
 }
 
 .screen h3 {
-    color: #1e40af;
+    color: #1a39a0;
     font-size: 26px;
     margin-bottom: 25px;
     text-align: center;
@@ -274,4 +275,30 @@ tbody tr:last-child td {
         width: 100%;
         margin: 8px 0;
     }
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.input-wrapper input {
+  padding-right: 40px; /* space for tick */
+}
+
+.tick {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #16a34a; /* green */
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.generate-btn {
+  display: inline-block;
+  margin: 16px auto 0;
+  padding: 5px 12px;
+  font-size: 13px;
+  border-radius: 6px;
 }

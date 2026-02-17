@@ -9,6 +9,7 @@ function App() {
 
   const SERVICE_TIME = 2 * 60 * 1000; // 2 minutes
   const [serviceStartTime, setServiceStartTime] = useState(Date.now());
+  const [extraDelay, setExtraDelay] = useState(0);
 
   const [queue, setQueue] = useState(
     JSON.parse(localStorage.getItem("queueData")) || []
@@ -73,6 +74,7 @@ function App() {
           setQueue={setQueue}
           setTokenCounter={setTokenCounter}
           setServiceStartTime={setServiceStartTime}
+          setExtraDelay={setExtraDelay}
         />    
       )} 
 
@@ -80,6 +82,7 @@ function App() {
         <WaitingScreen
           queue={queue}
           serviceStartTime={serviceStartTime}
+          extraDelay={extraDelay}
         />
       )}
 

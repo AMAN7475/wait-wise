@@ -2,7 +2,7 @@ import React from 'react'
 import { useEffect, useState } from "react";
 import "./Waiting.css";
 
-function WaitingScreen({ queue, serviceStartTime, goToAdmin }) {
+function WaitingScreen({ queue, serviceStartTime, extraDelay }) {
   const [yourToken, setYourToken] = useState(null);
   const [tokensAhead, setTokensAhead] = useState([]);
   const [estimatedTime, setEstimatedTime] = useState("Calculating...");
@@ -35,48 +35,45 @@ function WaitingScreen({ queue, serviceStartTime, goToAdmin }) {
   }, [queue]);
 
 
-    useEffect(() => {
+  useEffect(() => {
     if (!yourToken || queue.length === 0) {
-        setRemainingTime(null);
-        return;
+      setRemainingTime(null);
+      return;
     }
 
     const userIndex = queue.findIndex(
-        item => item.token === yourToken
+      item => item.token === yourToken
     );
 
     if (userIndex <= 0) {
-        setRemainingTime(null);
-        return;
+      setRemainingTime(null);
+      return;
     }
 
-    const updateRemainingTime = () => {
-        const now = Date.now();
-        const expectedServeTime =
-        serviceStartTime + userIndex * SERVICE_TIME;
+    const endTime =
+        serviceStartTime + (userIndex * SERVICE_TIME) + extraDelay;
 
-        const remaining = expectedServeTime - now;
+
+    const updateRemaining = () => {
+        const remaining = endTime - Date.now();
         setRemainingTime(remaining > 0 ? remaining : 0);
     };
 
-    updateRemainingTime(); // initial call
-
-    const interval = setInterval(updateRemainingTime, 1000);
+    updateRemaining();
+    const interval = setInterval(updateRemaining, 1000);
 
     return () => clearInterval(interval);
-    }, [queue, yourToken, serviceStartTime]);
+  }, [queue, yourToken, extraDelay]);
 
-    const formatTime = (ms) => {
-        if (ms === null) return "--:--";
+  const formatTime = (ms) => {
+    if (ms === null) return "--:--";
 
-        const totalSeconds = Math.floor(ms / 1000);
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
 
-        return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-    };
-
-
+    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  };
 
   return (
     <div className="waiting-container">
@@ -94,11 +91,11 @@ function WaitingScreen({ queue, serviceStartTime, goToAdmin }) {
           };
 
           if (isCurrentlyServing) {
-            style.background = "#16a34a";
+            style.background = "#0630abff";
             style.color = "white";
             style.fontWeight = "bold";
           } else if (isYourToken) {
-            style.background = "#2563eb";
+            style.background = "#4578e8ff";
             style.color = "white";
             style.fontWeight = "bold";
           } else {
