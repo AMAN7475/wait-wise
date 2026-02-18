@@ -215,8 +215,17 @@ button[type="submit"]:hover {
 }
 
 /* Admin Panel */
-#adminScreen button {
-    margin: 8px 5px;
+.admin-buttons {
+  display: flex;
+  justify-content: center;   
+  gap: 10px;                 
+  margin-bottom: 18px;
+}
+
+.admin-buttons button {
+  padding: 12px 18px;         
+  font-size: 15px;
+  cursor: pointer;
 }
 
 /* Table */

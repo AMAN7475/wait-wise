@@ -28,22 +28,12 @@ function AdminScreen({ queue, setQueue, setTokenCounter, setServiceStartTime, se
 
       <h3>Admin Panel</h3>
 
-      <button
-        style={{ marginLeft: 75 }}
-        onClick={serveNext}>
-        Bring Next
-      </button>
-
-      <button onClick={resetQueue}>
-        Reset Queue
-      </button>
-
-      <button onClick={addDelay}>
-        +2 Mins Delay
-      </button>
-
+       <div className="admin-buttons">
+        <button onClick={serveNext}>Bring Next</button>
+        <button onClick={resetQueue}>Reset Queue</button>
+        <button onClick={addDelay}>+2 Mins Delay</button>
+      </div>
       
-
       <table>
         <thead>
           <tr>
