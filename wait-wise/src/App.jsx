@@ -7,7 +7,7 @@ import WaitingScreen from "./components/WaitingScreen.jsx";
 function App() {
   const [screen, setScreen] = useState("user");
 
-  const SERVICE_TIME = 2 * 60 * 1000; // 2 minutes
+  const SERVICE_TIME = 2 * 60 * 1000; // 2 min
   const [serviceStartTime, setServiceStartTime] = useState(Date.now());
   const [extraDelay, setExtraDelay] = useState(0);
 
