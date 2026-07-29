@@ -4,13 +4,16 @@ from db import get_connection
 
 app = FastAPI()
 
+
 @app.get("/")
 def read_root():
     return {"status": "ok", "message": "WaitWise API running"}
 
+
 class PatientRegister(BaseModel):
     name: str
     phone: str
+
 
 @app.post("/register")
 def register_patient(patient: PatientRegister):
@@ -18,24 +21,19 @@ def register_patient(patient: PatientRegister):
     cursor = conn.cursor()
 
     try:
-        # Insert the new patient. token_number is set equal to the
-        # auto-generated id for now -- simple and always unique/increasing.
-        # status defaults to 'waiting' and extra_minutes to 0, as defined
-        # in the table schema, so we don't need to set them here.
         cursor.execute(
             "INSERT INTO patients (token_number, name, phone) VALUES (%s, %s, %s)",
-            (0, patient.name, patient.phone)  # token_number placeholder, fixed below
+            (0, patient.name, patient.phone)
         )
 
-        new_id = cursor.lastrowid  # the auto-generated id for the row we just inserted
+        new_id = cursor.lastrowid
 
-        # Now set token_number to match the id.
         cursor.execute(
             "UPDATE patients SET token_number = %s WHERE id = %s",
             (new_id, new_id)
         )
 
-        conn.commit()  # actually save these changes to the database
+        conn.commit()
 
         return {
             "message": "Patient registered successfully",
@@ -45,9 +43,67 @@ def register_patient(patient: PatientRegister):
         }
 
     except Exception as e:
-        conn.rollback()  # undo any partial changes if something went wrong
+        conn.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
         cursor.close()
-        conn.close()  # returns the connection to the pool, not actually closing it
+        conn.close()
+
+
+# Average consultation time per patient, in minutes.
+# Defined once here so it's easy to change later (e.g. if the clinic
+# wants 3 minutes instead of 2), without hunting through the code.
+MINUTES_PER_PATIENT = 2
+
+
+@app.get("/patients/{token_number}")
+def get_patient_position(token_number: int):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)  # dictionary=True gives rows as {column: value}
+    # instead of plain tuples, so we can access fields by name (row["status"])
+    # rather than by position (row[0]) -- much easier to read and less error-prone.
+
+    try:
+        # First, find this specific patient by their token number.
+        cursor.execute(
+            "SELECT token_number, name, status, extra_minutes FROM patients WHERE token_number = %s",
+            (token_number,)
+        )
+        patient = cursor.fetchone()
+
+        if patient is None:
+            # No patient with this token exists -- respond with a proper
+            # 404 error instead of pretending everything is fine.
+            raise HTTPException(status_code=404, detail="No patient found with this token number")
+
+        # Count how many patients are still "waiting" AND registered
+        # before this one. This is recalculated fresh on every request,
+        # so it always reflects the current, live state of the queue --
+        # not a stored number that can go stale.
+        cursor.execute(
+            """
+            SELECT COUNT(*) AS patients_ahead,
+                   COALESCE(SUM(extra_minutes), 0) AS extra_total
+            FROM patients
+            WHERE status = 'waiting' AND token_number < %s
+            """,
+            (token_number,)
+        )
+        result = cursor.fetchone()
+        patients_ahead = result["patients_ahead"]
+        extra_total = result["extra_total"]
+
+        estimated_wait_minutes = (patients_ahead * MINUTES_PER_PATIENT) + extra_total
+
+        return {
+            "token_number": patient["token_number"],
+            "name": patient["name"],
+            "status": patient["status"],
+            "patients_ahead": patients_ahead,
+            "estimated_wait_minutes": estimated_wait_minutes
+        }
+
+    finally:
+        cursor.close()
+        conn.close()
