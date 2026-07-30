@@ -107,3 +107,94 @@ def get_patient_position(token_number: int):
     finally:
         cursor.close()
         conn.close()
+
+
+class ExtendTimeRequest(BaseModel):
+    id: int
+
+
+@app.patch("/admin/extend-time")
+def extend_time(payload: ExtendTimeRequest):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Add 2 minutes to this specific patient's extra_minutes.
+        # Doing "+= 2" directly in SQL (rather than reading the value,
+        # adding 2 in Python, then writing it back) avoids a race
+        # condition if two requests happened at nearly the same time.
+        cursor.execute(
+            "UPDATE patients SET extra_minutes = extra_minutes + 2 WHERE id = %s",
+            (payload.id,)
+        )
+
+        if cursor.rowcount == 0:
+            # rowcount tells us how many rows the UPDATE actually matched.
+            # Zero means no patient with this id exists.
+            raise HTTPException(status_code=404, detail="No patient found with this id")
+
+        conn.commit()
+        return {"message": "Extra 2 minutes added", "id": payload.id}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.patch("/admin/remove/{patient_id}")
+def remove_patient(patient_id: int):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Soft delete: mark as 'removed' instead of actually deleting
+        # the row. This keeps the record for history, while our queue
+        # position query (which filters on status = 'waiting') will
+        # automatically skip over them from now on.
+        cursor.execute(
+            "UPDATE patients SET status = 'removed' WHERE id = %s",
+            (patient_id,)
+        )
+
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=404, detail="No patient found with this id")
+
+        conn.commit()
+        return {"message": "Patient removed from queue", "id": patient_id}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.get("/admin/patients")
+def list_all_patients():
+    # Returns every patient (regardless of status) so the admin screen
+    # can display the full list, including who's already been removed
+    # or finished -- useful for the admin to see the complete picture.
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        cursor.execute(
+            "SELECT id, token_number, name, phone, status, extra_minutes, created_at "
+            "FROM patients ORDER BY token_number ASC"
+        )
+        patients = cursor.fetchall()
+        return {"patients": patients}
+
+    finally:
+        cursor.close()
+        conn.close()
