@@ -15,6 +15,7 @@ dist-ssr
 .env.*
 !.env.example
 .DS_Store
+socket_test.html
 
 # Editor directories and files
 .vscode/*

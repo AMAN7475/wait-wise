@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from db import get_connection
+import socketio
+from sockets import sio
 
 app = FastAPI()
 
@@ -114,7 +116,7 @@ class ExtendTimeRequest(BaseModel):
 
 
 @app.patch("/admin/extend-time")
-def extend_time(payload: ExtendTimeRequest):
+async def extend_time(payload: ExtendTimeRequest):
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -134,6 +136,13 @@ def extend_time(payload: ExtendTimeRequest):
             raise HTTPException(status_code=404, detail="No patient found with this id")
 
         conn.commit()
+
+        # Tell every connected browser that the queue changed.
+        # Each patient screen, on hearing this, will re-fetch its own
+        # position from GET /patients/{token_number} -- we don't send
+        # the actual queue data over the socket, just a "go check again" signal.
+        await sio.emit("queueUpdated", {"reason": "extend_time", "id": payload.id})
+
         return {"message": "Extra 2 minutes added", "id": payload.id}
 
     except HTTPException:
@@ -148,7 +157,7 @@ def extend_time(payload: ExtendTimeRequest):
 
 
 @app.patch("/admin/remove/{patient_id}")
-def remove_patient(patient_id: int):
+async def remove_patient(patient_id: int):
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -166,6 +175,9 @@ def remove_patient(patient_id: int):
             raise HTTPException(status_code=404, detail="No patient found with this id")
 
         conn.commit()
+
+        await sio.emit("queueUpdated", {"reason": "remove_patient", "id": patient_id})
+
         return {"message": "Patient removed from queue", "id": patient_id}
 
     except HTTPException:
@@ -198,3 +210,12 @@ def list_all_patients():
     finally:
         cursor.close()
         conn.close()
+
+
+# Wrap our FastAPI app together with the Socket.IO server into one
+# combined ASGI app. From now on, we run THIS (socket_app), not app
+# directly, so both regular HTTP routes and the socket connection
+# are served together on the same port.
+#
+# Run with:  uvicorn main:socket_app --reload
+socket_app = socketio.ASGIApp(sio, other_asgi_app=app)
