@@ -1,10 +1,23 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from db import get_connection
 import socketio
 from sockets import sio
 
 app = FastAPI()
+
+# Without this, the browser blocks every request from your React app
+# (running on a different port, e.g. localhost:5173) to this API
+# (localhost:8000) -- browsers treat different ports as different
+# "origins" and block cross-origin requests by default for security.
+# This explicitly allows your local React dev server to call this API.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
@@ -86,7 +99,7 @@ def get_patient_position(token_number: int):
         cursor.execute(
             """
             SELECT COUNT(*) AS patients_ahead,
-                   COALESCE(SUM(extra_minutes), 0) AS extra_total
+                COALESCE(SUM(extra_minutes), 0) AS extra_total
             FROM patients
             WHERE status = 'waiting' AND token_number < %s
             """,
