@@ -18,3 +18,16 @@ export async function registerPatient(name, phone) {
 
     return response.json();
 }
+
+// Fetches a specific patient's live queue position, by their
+// token number. Called once when the waiting screen loads, and
+// again every time a "queueUpdated" socket event is received.
+export async function getPatientPosition(tokenNumber) {
+    const response = await fetch(`${API_URL}/patients/${tokenNumber}`);
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch patient position");
+    }
+
+    return response.json();
+}
