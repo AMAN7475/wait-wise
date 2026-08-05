@@ -1,128 +1,92 @@
-import React from 'react'
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { getPatientPosition } from "../api.js";
+import { socket } from "../socket.js";
 import "./Waiting.css";
 
-function WaitingScreen({ queue, serviceStartTime, extraDelay }) {
-    const [yourToken, setYourToken] = useState(null);
-    const [tokensAhead, setTokensAhead] = useState([]);
-    const [estimatedTime, setEstimatedTime] = useState("Calculating...");
-    const [remainingTime, setRemainingTime] = useState(null);
+function WaitingScreen() {
+    // Reads the dynamic part of the URL. For a URL like
+    // /waiting/6, tokenNumber will be the string "6".
+    const { tokenNumber } = useParams();
 
-    const currentlyServing = queue.length > 0 ? queue[0].token : null;
-    const SERVICE_TIME = 2 * 60 * 1000;
+    const [patient, setPatient] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
-    useEffect(() => {
-        const token = Number(localStorage.getItem("currentUserToken"));
-        setYourToken(token);
-
-        if (!token || queue.length === 0) {
-            setTokensAhead([]);
-            setEstimatedTime("No waiting");
-        return;
+    // Fetches this patient's current position from the backend.
+    // Called once when the page loads, and again every time we
+    // hear a "queueUpdated" event from the server.
+    const fetchPosition = async () => {
+        try {
+            const data = await getPatientPosition(tokenNumber);
+            setPatient(data);
+            setError("");
+        } catch (err) {
+            setError("Could not find this token. Please check your link.");
+        } finally {
+            setLoading(false);
         }
-
-        const userIndex = queue.findIndex(
-            item => item.token === token
-        );
-
-        if (userIndex === -1) {
-            setTokensAhead([]);
-            setEstimatedTime("Now");
-            return;
-        }
-
-        setTokensAhead(queue.slice(0, userIndex));
-    }, [queue]);
-
-
-    useEffect(() => {
-        if (!yourToken || queue.length === 0) {
-            setRemainingTime(null);
-            return;
-        }
-
-        const userIndex = queue.findIndex(
-            item => item.token === yourToken
-        );
-
-        if (userIndex <= 0) {
-            setRemainingTime(null);
-            return;
-        }
-
-        const endTime =
-            serviceStartTime + (userIndex * SERVICE_TIME) + extraDelay;
-
-
-        const updateRemaining = () => {
-            const remaining = endTime - Date.now();
-            setRemainingTime(remaining > 0 ? remaining : 0);
-        };
-
-        updateRemaining();
-        const interval = setInterval(updateRemaining, 1000);
-
-        return () => clearInterval(interval);
-    }, [queue, yourToken, extraDelay]);
-
-    const formatTime = (ms) => {
-        if (ms === null) return "--:--";
-
-        const totalSeconds = Math.floor(ms / 1000);
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-
-        return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
     };
+
+    useEffect(() => {
+        fetchPosition();
+
+        // Whenever the admin extends someone's time or removes a
+        // patient, the backend broadcasts "queueUpdated" to every
+        // connected browser. Here, we react to that by re-fetching
+        // this specific patient's position -- so the screen updates
+        // live, without the user ever refreshing the page.
+        socket.on("queueUpdated", fetchPosition);
+
+        // Cleanup: when this component unmounts (e.g. user navigates
+        // away), stop listening -- otherwise old listeners can pile
+        // up and cause duplicate fetches.
+        return () => {
+            socket.off("queueUpdated", fetchPosition);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [tokenNumber]);
+
+    if (loading) {
+        return (
+            <div className="waiting-container">
+                <p>Loading your position...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="waiting-container">
+                <p style={{ color: "red" }}>{error}</p>
+            </div>
+        );
+    }
 
     return (
         <div className="waiting-container">
-            <h2 className="sub-heading">WAITING LIST</h2>
+            <h2 className="sub-heading">YOUR TOKEN: {patient.token_number}</h2>
+            <p>Name: {patient.name}</p>
+            <p>Status: {patient.status}</p>
 
-            <ul>
-                {queue.map((item, index) => {
-                    const isCurrentlyServing = index === 0;
-                    const isYourToken = item.token === yourToken;
-
-                    let style = {
-                        padding: "10px",
-                        marginBottom: "6px",
-                        borderRadius: "6px",
-                    };
-
-                    if (isCurrentlyServing) {
-                        style.background = "#0630abff";
-                        style.color = "white";
-                        style.fontWeight = "bold";
-                    } else if (isYourToken) {
-                        style.background = "#4578e8ff";
-                        style.color = "white";
-                        style.fontWeight = "bold";
-                    } else {
-                        style.background = "#f0f0f0";
-                        style.color = "black";
-                    }
-
-                    return (
-                        <li key={item.token} style={style}>
-                            Token {item.token}
-                            {isCurrentlyServing && " (Currently Served)"}
-                            {isYourToken && !isCurrentlyServing && " (You)"}
-                        </li>
-                    );
-                })}
-            </ul>
-
-            <p className="eta">
-                You Are Next In :
-                <span className="time-value">
-                {remainingTime !== null
-                    ? formatTime(remainingTime)
-                    : "No waiting"}
-                </span>
-            </p>
+            {patient.status === "waiting" ? (
+                <>
+                    <p className="eta">
+                        Patients ahead of you:
+                        <span className="time-value">{patient.patients_ahead}</span>
+                    </p>
+                    <p className="eta">
+                        Estimated wait:
+                        <span className="time-value">
+                            {patient.estimated_wait_minutes} min
+                        </span>
+                    </p>
+                </>
+            ) : (
+                <p>Your status has changed -- please check with the front desk.</p>
+            )}
         </div>
     );
+}
 
-}  
 export default WaitingScreen;
