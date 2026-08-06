@@ -5,15 +5,15 @@ const API_URL = import.meta.env.VITE_API_URL;
 // throws an error if the server responds with a failure status.
 export async function registerPatient(name, phone) {
     const response = await fetch(`${API_URL}/register`, {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ name, phone }),
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, phone }),
     });
 
     if (!response.ok) {
-    throw new Error("Failed to register patient");
+        throw new Error("Failed to register patient");
     }
 
     return response.json();
@@ -27,6 +27,48 @@ export async function getPatientPosition(tokenNumber) {
 
     if (!response.ok) {
         throw new Error("Failed to fetch patient position");
+    }
+
+    return response.json();
+}
+
+// Fetches every patient in the system (any status), for the admin
+// screen's table.
+export async function getAllPatients() {
+    const response = await fetch(`${API_URL}/admin/patients`);
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch patients");
+    }
+
+    return response.json();
+}
+
+// Adds 2 extra minutes to a specific patient's wait time.
+export async function extendPatientTime(id) {
+    const response = await fetch(`${API_URL}/admin/extend-time`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id }),
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to extend time");
+    }
+
+    return response.json();
+}
+
+// Marks a specific patient as removed from the queue.
+export async function removePatient(id) {
+    const response = await fetch(`${API_URL}/admin/remove/${id}`, {
+        method: "PATCH",
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to remove patient");
     }
 
     return response.json();
