@@ -1,8 +1,71 @@
+/* ---------------------------------------------------------
+  Design tokens -- one place defining every color, font,
+  and spacing value used across the app. Changing the whole
+  app's look later means editing values here, not hunting
+  through every component's CSS file individually.
+--------------------------------------------------------- */
+:root {
+  /* Color */
+  --ink: #11201d;
+  --ink-soft: #4b5a57;
+  --surface: #ffffff;
+  --bg: #f6f9f8;
+  --primary: #0b6e64;
+  --primary-dark: #084f48;
+  --border: #e1e8e6;
+  --status-waiting: #b45309;
+  --status-waiting-bg: #fef3e2;
+  --status-done: #6b7280;
+  --status-done-bg: #f3f4f6;
+  --danger: #b42318;
+  --danger-bg: #fef2f2;
+
+  /* Type */
+  --font-display: "Manrope", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+
+  /* Shape */
+  --radius: 12px;
+  --shadow: 0 1px 3px rgba(17, 32, 29, 0.08), 0 1px 2px rgba(17, 32, 29, 0.04);
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: Arial, Helvetica, sans-serif;
-  color: #fff;
 }
 
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  color: var(--ink);
+}
+
+button {
+  font-family: var(--font-body);
+}
+
+/* Respect users who've asked their OS to reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
