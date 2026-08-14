@@ -4,8 +4,6 @@ import { getPatientPosition } from "../api.js";
 import { socket } from "../socket.js";
 import "./WaitingScreen.css";
 
-const STEPS = ["waiting", "in_consultation", "done"];
-
 function WaitingScreen() {
     const { tokenNumber } = useParams();
 
@@ -59,64 +57,66 @@ function WaitingScreen() {
         removed: "Removed",
     }[patient.status];
 
-    // Which step of the journey to highlight in the tracker below.
-    // "removed" patients don't map onto the normal step flow at all.
-    const currentStepIndex = STEPS.indexOf(patient.status);
+    const isYourTurn = patient.status === "waiting" && patient.patients_ahead === 0;
 
     return (
         <div className="waiting-card">
-            <div className="token-panel">
+            <div className="card-top">
+                <span className="token-chip">Token #{String(patient.token_number).padStart(3, "0")}</span>
                 <div className="live-indicator">
                     <span className="live-dot" />
                     LIVE
                 </div>
-                <p className="token-label">Your token</p>
-                <p className="token-number">{String(patient.token_number).padStart(3, "0")}</p>
-                <div className="token-glow" />
             </div>
-
-            <div className="patient-meta">
-                <p className="patient-name">{patient.name}</p>
-                <span className={`status-badge status-${patient.status}`}>
-                    {statusLabel}
-                </span>
-            </div>
-
-            {patient.status !== "removed" && (
-                <div className="step-tracker">
-                    {["Registered", "Waiting", "In consultation", "Done"].map((label, i) => (
-                        <div
-                            className={`step ${i <= currentStepIndex + 1 ? "step-done" : ""}`}
-                            key={label}
-                        >
-                            <span className="step-dot" />
-                            <span className="step-label">{label}</span>
-                        </div>
-                    ))}
-                </div>
-            )}
 
             {patient.status === "waiting" ? (
-                <div className="stats-row">
-                    <div className="stat">
-                        <span className="stat-icon">👥</span>
-                        <p className="stat-value">{patient.patients_ahead}</p>
-                        <p className="stat-label">Patients ahead</p>
+                <>
+                    <div className="hero">
+                        {isYourTurn ? (
+                            <>
+                                <p className="hero-headline turn">You're next</p>
+                                <p className="hero-subtext">Please be ready — the clinic will call you shortly</p>
+                            </>
+                        ) : (
+                            <>
+                                <p className="hero-eyebrow">You're next in</p>
+                                <p className="hero-headline">
+                                    {patient.estimated_wait_minutes}
+                                    <span className="hero-unit">
+                                        {" "}min{patient.estimated_wait_minutes === 1 ? "" : "s"}
+                                    </span>
+                                </p>
+                                <p className="hero-subtext">
+                                    {patient.patients_ahead} patient{patient.patients_ahead === 1 ? "" : "s"} ahead of you
+                                </p>
+                            </>
+                        )}
                     </div>
-                    <div className="stat">
-                        <span className="stat-icon">⏱</span>
-                        <p className="stat-value">
-                            {patient.estimated_wait_minutes}
-                            <span className="stat-unit"> min</span>
-                        </p>
-                        <p className="stat-label">Estimated wait</p>
+
+                    <div className="progress-track">
+                        <div
+                            className="progress-fill"
+                            style={{
+                                width: isYourTurn
+                                    ? "100%"
+                                    : `${Math.max(8, 100 - patient.patients_ahead * 15)}%`,
+                            }}
+                        />
                     </div>
-                </div>
+                </>
             ) : (
-                <p className="waiting-message">
-                    Your status has changed — please check with the front desk.
-                </p>
+                <div className="hero">
+                    <p className="hero-headline status-only">{statusLabel}</p>
+                    <p className="hero-subtext">
+                        Your status has changed — please check with the front desk.
+                    </p>
+                </div>
             )}
+
+            <div className="patient-row">
+                <span className="patient-name">{patient.name}</span>
+                <span className={`status-badge status-${patient.status}`}>{statusLabel}</span>
+            </div>
 
             {lastUpdated && (
                 <p className="last-updated">
