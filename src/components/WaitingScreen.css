@@ -1,57 +1,52 @@
 .waiting-card {
     background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: var(--space-5);
+    border-radius: 24px;
+    box-shadow: 0 20px 40px -12px rgba(11, 110, 100, 0.18), 0 4px 12px rgba(17, 32, 29, 0.06);
     width: 100%;
     max-width: 420px;
-    text-align: center;
+    overflow: hidden;
 }
 
 .loading-text {
     color: var(--ink-soft);
-    padding: var(--space-5) 0;
+    padding: var(--space-5);
+    text-align: center;
 }
 
-/* --- The signature element: a dark "display board" panel,
-   styled after real hospital/airport queue monitors --- */
-.token-panel {
-    background: linear-gradient(180deg, #14261f 0%, var(--ink) 100%);
-    border-radius: var(--radius);
-    padding: var(--space-5) var(--space-4);
+/* --- Identity header: gradient band, avatar, name, token --- */
+.card-header {
+    background: linear-gradient(135deg, var(--primary) 0%, #0a5c53 60%, #084f48 100%);
+    padding: var(--space-4) var(--space-4) var(--space-5);
+    text-align: center;
     position: relative;
-    margin-bottom: var(--space-4);
     overflow: hidden;
 }
 
-.token-glow {
+.card-header::after {
+    content: "";
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: -60px;
+    right: -40px;
     width: 180px;
     height: 180px;
-    background: #6ee7db;
-    filter: blur(60px);
-    opacity: 0.18;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(110, 231, 219, 0.25) 0%, transparent 70%);
 }
 
 .live-indicator {
-    position: absolute;
-    top: var(--space-3);
-    right: var(--space-3);
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 6px;
     font-family: var(--font-mono);
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.08em;
-    color: #6ee7db;
+    color: #a8f0e6;
+    margin-bottom: var(--space-3);
+    position: relative;
     z-index: 1;
-}
+    }
 
 .live-dot {
     width: 7px;
@@ -66,28 +61,77 @@
     50% { opacity: 0.35; }
 }
 
-.token-label {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #9db5b1;
+.patient-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 19px;
+    color: #ffffff;
     margin-bottom: var(--space-2);
     position: relative;
     z-index: 1;
 }
 
-.token-number {
+.token-chip {
+    display: inline-block;
     font-family: var(--font-mono);
+    font-size: 13px;
     font-weight: 600;
-    font-size: 68px;
-    letter-spacing: 0.05em;
-    color: #6ee7db;
-    line-height: 1;
-    text-shadow: 0 0 24px rgba(110, 231, 219, 0.35);
+    color: #d3fdf6;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    padding: 5px 14px;
+    border-radius: 999px;
     position: relative;
     z-index: 1;
+}
+
+/* --- Body: the actual wait-time answer --- */
+.card-body {
+    padding: var(--space-5) var(--space-4) var(--space-4);
+}
+
+.hero {
+    text-align: center;
+    padding-bottom: var(--space-4);
+}
+
+.hero-icon {
+    font-size: 26px;
+    display: block;
+    margin-bottom: var(--space-2);
+}
+
+.hero-eyebrow {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-bottom: 4px;
+}
+
+.hero-headline {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 52px;
+    line-height: 1;
+    color: var(--primary);
+    letter-spacing: -0.02em;
     animation: fade-in 0.3s ease;
+}
+
+.hero-headline.turn {
+    font-size: 36px;
+    color: var(--primary-dark);
+}
+
+.hero-headline.status-only {
+    font-size: 30px;
+    color: var(--ink);
+}
+
+.hero-unit {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ink-soft);
 }
 
 @keyframes fade-in {
@@ -95,18 +139,37 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
-.patient-meta {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-2);
+.hero-subtext {
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin-top: var(--space-2);
+}
+
+/* --- Progress bar --- */
+.progress-track {
+    height: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    overflow: hidden;
     margin-bottom: var(--space-4);
 }
 
-.patient-name {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 18px;
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), #6ee7db);
+    border-radius: 999px;
+    transition: width 0.5s ease;
+    box-shadow: 0 0 12px rgba(110, 231, 219, 0.5);
+}
+
+/* --- Footer --- */
+.footer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: var(--space-3);
+    border-top: 1px dashed var(--border);
 }
 
 .status-badge {
@@ -131,107 +194,6 @@
 .status-removed {
     background: var(--status-done-bg);
     color: var(--status-done);
-}
-
-/* --- Step tracker: shows the patient's journey at a glance --- */
-.step-tracker {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: var(--space-4);
-    position: relative;
-}
-
-.step-tracker::before {
-    content: "";
-    position: absolute;
-    top: 5px;
-    left: 5%;
-    right: 5%;
-    height: 2px;
-    background: var(--border);
-    z-index: 0;
-}
-
-.step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    flex: 1;
-    position: relative;
-    z-index: 1;
-}
-
-.step-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--surface);
-    border: 2px solid var(--border);
-    transition: background 0.2s ease, border-color 0.2s ease;
-}
-
-.step-done .step-dot {
-    background: var(--primary);
-    border-color: var(--primary);
-}
-
-.step-label {
-    font-size: 10px;
-    color: var(--ink-soft);
-    text-align: center;
-    max-width: 64px;
-}
-
-.step-done .step-label {
-    color: var(--ink);
-    font-weight: 600;
-}
-
-.stats-row {
-    display: flex;
-    gap: var(--space-3);
-    margin-bottom: var(--space-3);
-}
-
-.stat {
-    flex: 1;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: var(--space-3);
-}
-
-.stat-icon {
-    font-size: 16px;
-    display: block;
-    margin-bottom: 4px;
-}
-
-.stat-value {
-    font-family: var(--font-mono);
-    font-size: 28px;
-    font-weight: 600;
-    color: var(--ink);
-}
-
-.stat-unit {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--ink-soft);
-}
-
-.stat-label {
-    font-size: 12px;
-    color: var(--ink-soft);
-    margin-top: var(--space-1);
-}
-
-.waiting-message {
-    color: var(--ink-soft);
-    font-size: 14px;
-    padding: var(--space-3) 0;
 }
 
 .last-updated {
