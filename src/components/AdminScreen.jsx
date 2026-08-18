@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getAllPatients, extendPatientTime, removePatient } from "../api.js";
 import { socket } from "../socket.js";
+// import "./AdminScreen.css";
 
 function AdminScreen() {
     const [patients, setPatients] = useState([]);
@@ -19,13 +20,7 @@ function AdminScreen() {
 
     useEffect(() => {
         fetchPatients();
-
-        // Re-fetch the list any time the queue changes -- including
-        // changes made from this same screen (see handleExtend /
-        // handleRemove below), and from any other admin device too,
-        // since the whole point of sockets is everyone stays in sync.
         socket.on("queueUpdated", fetchPatients);
-
         return () => {
             socket.off("queueUpdated", fetchPatients);
         };
@@ -34,10 +29,6 @@ function AdminScreen() {
     const handleExtend = async (id) => {
         try {
             await extendPatientTime(id);
-            // No need to manually update state here -- extendPatientTime
-            // succeeding on the backend triggers a "queueUpdated" socket
-            // broadcast, which our own listener above will catch and
-            // use to refresh this list automatically.
         } catch (err) {
             alert("Could not extend time. Please try again.");
         }
@@ -45,7 +36,6 @@ function AdminScreen() {
 
     const handleRemove = async (id) => {
         if (!window.confirm("Remove this patient from the queue?")) return;
-
         try {
             await removePatient(id);
         } catch (err) {
@@ -55,52 +45,97 @@ function AdminScreen() {
 
     if (loading) {
         return (
-            <div className="screen">
-                <p>Loading patients...</p>
+            <div className="admin-card">
+                <p className="loading-text">Loading patients...</p>
             </div>
         );
     }
 
+    const statusLabel = {
+        waiting: "Waiting",
+        in_consultation: "In consultation",
+        done: "Completed",
+        removed: "Removed",
+    };
+
+    const waitingCount = patients.filter((p) => p.status === "waiting").length;
+    const totalToday = patients.length;
+
     return (
-        <div className="screen">
-            <h3>Admin Panel</h3>
+        <div className="admin-card">
+            <div className="admin-header">
+                <p className="admin-eyebrow">Admin panel</p>
+                <h3>Live queue overview</h3>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Token</th>
-                        <th>Name</th>
-                        <th>Contact</th>
-                        <th>Status</th>
-                        <th>Extra Minutes</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
+                <div className="summary-row">
+                    <div className="summary-stat">
+                        <p className="summary-value">{waitingCount}</p>
+                        <p className="summary-label">Currently waiting</p>
+                    </div>
+                    <div className="summary-stat">
+                        <p className="summary-value">{totalToday}</p>
+                        <p className="summary-label">Registered today</p>
+                    </div>
+                </div>
+            </div>
 
-                <tbody>
-                    {patients.map((patient) => (
-                        <tr key={patient.id}>
-                            <td>{patient.token_number}</td>
-                            <td>{patient.name}</td>
-                            <td>{patient.phone}</td>
-                            <td>{patient.status}</td>
-                            <td>{patient.extra_minutes}</td>
-                            <td>
-                                {patient.status === "waiting" && (
-                                    <>
-                                        <button onClick={() => handleExtend(patient.id)}>
-                                            +2 Min
-                                        </button>
-                                        <button onClick={() => handleRemove(patient.id)}>
-                                            Remove
-                                        </button>
-                                    </>
-                                )}
-                            </td>
+            <div className="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Token</th>
+                            <th>Name</th>
+                            <th>Contact</th>
+                            <th>Status</th>
+                            <th>Extra time</th>
+                            <th>Actions</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {patients.map((patient) => (
+                            <tr key={patient.id}>
+                                <td>
+                                    <span className="row-token">
+                                        {String(patient.token_number).padStart(3, "0")}
+                                    </span>
+                                </td>
+                                <td>{patient.name}</td>
+                                <td>{patient.phone}</td>
+                                <td>
+                                    <span className={`status-badge status-${patient.status}`}>
+                                        {statusLabel[patient.status]}
+                                    </span>
+                                </td>
+                                <td>
+                                    {patient.extra_minutes > 0 ? `+${patient.extra_minutes} min` : "—"}
+                                </td>
+                                <td>
+                                    {patient.status === "waiting" && (
+                                        <div className="row-actions">
+                                            <button
+                                                className="action-btn extend"
+                                                onClick={() => handleExtend(patient.id)}
+                                            >
+                                                +2 min
+                                            </button>
+                                            <button
+                                                className="action-btn remove"
+                                                onClick={() => handleRemove(patient.id)}
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    )}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+
+                {patients.length === 0 && (
+                    <p className="empty-state">No patients registered yet today.</p>
+                )}
+            </div>
         </div>
     );
 }
