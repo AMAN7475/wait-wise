@@ -46,7 +46,7 @@
     margin-bottom: var(--space-3);
     position: relative;
     z-index: 1;
-    }
+}
 
 .live-dot {
     width: 7px;
@@ -170,30 +170,6 @@
     justify-content: space-between;
     padding-top: var(--space-3);
     border-top: 1px dashed var(--border);
-}
-
-.status-badge {
-    display: inline-block;
-    font-size: 12px;
-    font-weight: 600;
-    padding: 4px 12px;
-    border-radius: 999px;
-}
-
-.status-waiting {
-    background: var(--status-waiting-bg);
-    color: var(--status-waiting);
-}
-
-.status-in_consultation {
-    background: rgba(11, 110, 100, 0.12);
-    color: var(--primary);
-}
-
-.status-done,
-.status-removed {
-    background: var(--status-done-bg);
-    color: var(--status-done);
 }
 
 .last-updated {
