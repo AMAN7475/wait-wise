@@ -39,10 +39,17 @@ function UserScreen() {
 
     return (
         <div className="register-card">
-            <h3>Join the queue</h3>
-            <p className="subtitle">Enter your details to get your token</p>
+            <div className="register-header">
+                <div className="clinic-title">
+                    <span className="welcome-text">Welcome to</span>
+                    <span className="clinic-name">Dr. Akanksha's Physiotherapy Clinic</span>
+                </div>
+            </div>
 
-            <form onSubmit={generateToken}>
+            <div className="register-body">
+                <p className="subtitle">Enter the details below and get your token.</p>
+
+                <form onSubmit={generateToken}>
                 <div className="field">
                     <label>Patient's name</label>
                     <div className="input-wrapper">
@@ -107,14 +114,11 @@ function UserScreen() {
                     type="submit"
                     disabled={!isFormValid || isSubmitting}
                     className="generate-btn"
-                    style={{
-                        background: isFormValid ? "var(--primary)" : "var(--status-done)",
-                        cursor: isFormValid ? "pointer" : "not-allowed",
-                    }}
                 >
                     {isSubmitting ? "Registering..." : "Generate token"}
                 </button>
             </form>
+            </div>
         </div>
     );
 }
