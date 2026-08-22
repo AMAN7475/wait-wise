@@ -1,19 +1,76 @@
 .register-card {
     background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: var(--space-5);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px -12px rgba(11, 110, 100, 0.18), 0 4px 12px rgba(17, 32, 29, 0.06);
     width: 100%;
-    max-width: 420px;
+    max-width: 440px;
+    overflow: hidden;
 }
 
-.register-card h3 {
-    font-size: 20px;
-    margin-bottom: var(--space-1);
+/* --- Header: dark teal gradient block, same language as the
+   admin panel's "Live queue overview" header --- */
+.register-header {
+    background: linear-gradient(135deg, var(--primary) 0%, #0a5c53 60%, #084f48 100%);
+    padding: var(--space-4) var(--space-4) var(--space-5);
+    position: relative;
+    overflow: hidden;
 }
 
-.register-card > p.subtitle {
+.register-header::after {
+    content: "";
+    position: absolute;
+    top: -60px;
+    right: -40px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(110, 231, 219, 0.22) 0%, transparent 70%);
+}
+
+.register-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #a8f0e6;
+    margin-bottom: var(--space-3);
+    position: relative;
+    z-index: 1;
+}
+
+.clinic-title {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+    gap: 6px;
+}
+
+.welcome-text {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #d3fdf6;
+    margin-bottom: 4px;
+}
+
+.clinic-name {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 22px;
+    line-height: 1.25;
+    color: #ffffff;
+}
+
+/* --- Body: white form area --- */
+.register-body {
+    padding: var(--space-5) var(--space-4) var(--space-4);
+}
+
+.register-body > p.subtitle {
     color: var(--ink-soft);
     font-size: 14px;
     margin-bottom: var(--space-4);
@@ -41,16 +98,18 @@
     width: 100%;
     font-family: var(--font-body);
     font-size: 15px;
-    padding: 10px 36px 10px 12px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    padding: 11px 36px 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
     outline: none;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    background: var(--bg);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
 .input-wrapper input:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(11, 110, 100, 0.12);
+    background: var(--surface);
+    box-shadow: 0 0 0 4px rgba(11, 110, 100, 0.12);
 }
 
 .input-wrapper .tick {
@@ -74,16 +133,29 @@
 
 .generate-btn {
     width: 100%;
-    padding: 12px;
+    padding: 13px;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-family: var(--font-body);
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 700;
     color: white;
-    transition: background 0.15s ease;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    box-shadow: 0 8px 16px -6px rgba(11, 110, 100, 0.4);
+    transition: filter 0.15s ease, transform 0.1s ease;
 }
 
 .generate-btn:not(:disabled):hover {
-    background: var(--primary-dark) !important;
+    filter: brightness(1.08);
+}
+
+.generate-btn:not(:disabled):active {
+    transform: translateY(1px);
+}
+
+.generate-btn:disabled {
+    background: var(--status-done);
+    box-shadow: none;
+    cursor: not-allowed;
 }
